@@ -2,3 +2,9 @@ julia 1
 NBInclude
 Glob
 Weave
+BenchmarkTools
+LaTeXStrings
+PyCall
+Plots
+LinearAlgebra
+DifferentialEquations
