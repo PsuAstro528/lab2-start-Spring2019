@@ -22,7 +22,7 @@ From your Jupyter notebook server, work through ex1.ipynb.
 From your Jupyter notebook server, work through ex2.ipynb.  
 
 
-## Exercise 3:  Model for Radial Velocity of a Star with no Planet
+## Exercise 3:  Model for Radial Velocity of a Star
 ### Goal:  Write effective tests for floating point calculations
 ### Goal:  Reduce risk of bugs by using composite types and named function parameters
 ### Goal:  Catch problems early by adding assertions
