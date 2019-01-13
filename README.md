@@ -30,7 +30,7 @@ From your Jupyter notebook server, work through ex2.ipynb.
 ### Goal:  Calculate the likelihood of simulated observations accurately
 ### Goal:  Validate code via both visual and quantiative tests
 
-From your Jupyter notebook server, work through ex3.ipynb. Forthis lab, you will also edit 'test/test3.jl'.
+From your Jupyter notebook server, work through ex3.ipynb. For this exercise, you will also edit 'test/test3.jl'.
 
 
 #### Submit your repository
