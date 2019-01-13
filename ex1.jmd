@@ -1,0 +1,172 @@
+
+# Astro 585 Lab 2, Exercise 1
+
+## Benchmarking Code
+
+
+Julia provides several tools for measuring code performance. Perhaps the simplest way is using the [`@time`](https://docs.julialang.org/en/v1.0/base/base/#Base.@time) or [`@elapsed`](https://docs.julialang.org/en/v1.0/base/base/#Base.@elapsed) macros, such as
+
+```julia
+@time randn(1000);
+```
+
+The `@time` macro prints the time, but returns the value of the following expression. The `@elapsed` macro discards the following expressions return value and returns the elapsed time evaluating the expression. There are even more sophisticated macros in the [BenchmarkTools.jl](https://github.com/JuliaCI/BenchmarkTools.jl) package which provides `@btime` and `@belapsed` that provide outputs similar to `@time` and `@elapsed`, but take longer than @time, since it runs the code multiple times in an attempt to give more accurate results.  It also provides a `@benchmkark` macro that provides more detailed information.  
+
+a) For several common mathematical functions, calculate how many million evaluations your computer performs per second.  
+Try a few arithmatic operations, a couple of trig functions, and a logarithm. For example,  
+
+```julia
+# First, let's install all the packages that will be used for this lab
+using Pkg
+Pkg.activate("test") # Tell Julia to look in test directory to find Project.toml
+Pkg.instantiate()    # Tell Julia to install any packages needed for this assignment
+```
+
+```julia
+using BenchmarkTools
+```
+
+```julia
+function my_benchmarks(N::Integer)
+   x = randn(N)
+   y = randn(N)
+   println("rand:  ", N/(@belapsed rand($N)), " M evals/sec");
+   println(".+  :  ", N/(@belapsed $x.+$y), " M evals/sec");
+   # INSERT CODE
+end
+
+n_list = [1, 10, 100]
+for n in n_list
+    println("# N = ",n)
+    my_benchmarks(n)
+end
+```
+
+a.  How much longer did it take to compute a trig function than simple arithmetic?
+How much longer did it take to compute a logarithm than simple arithmetic?
+
+INSERT RESPONCE
+
+b.  Did the number of evaluations per second vary significantly depending on the number of elements in the array?  
+How large of an array was necessary before the performance reached its asymptote?
+
+INSERT RESPONCE
+
+
+## Memory Requirements for Linear Algebra Problems^[1]
+
+Consider a modern laptop with 4 GB (=4\*2^30) of usable memory. Assume it uses 8 bytes of memory to store each floating point number (i.e., Float64, double precision, real\*8). 
+
+### Theory
+
+c. What is the largest matrix that the above computer could fit into its available memory at one time?  (Feel free to write code to compute the answer.)
+
+INSERT RESPONCE
+
+
+d. Estimate how long would it take to solve the maximum size linear system that would fit into memory at once, if we use LU factorization to solve a linear system.  You may assume the computation is maximally efficient, the computer reaches peak performance and the LU decomposition requires $(2/3)*N^3$ flops, where $N$ refers to the number of rows in the square array being factorized.
+Use an approximation for the number of floating point operations per second based on your results above.
+
+INSERT RESPONCE
+
+
+e. Does memory or compute time limit the size of system that can be practically solved with LU decomposition for this modern laptop?
+            
+INSERT RESPONCE
+
+f. Now consider a high-end server with 1TB of RAM (such as ICS-ACI's high-memory nodes).  
+What is the maximum size linear system that would fit into its memory at once?  How long do you estimate it would take (assuming performance similar to the system you're using)?
+            
+INSERT RESPONCE
+
+### In practice
+
+g. Following your work above, estimate how long it would take to solve a linear system with $N=100$ via LU factorization.  
+
+INSERT RESPONCE
+
+h.  Benchmark how long it actually takes to solve a linear system with $N=100$ via [LU factorization](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/index.html#LinearAlgebra.lu) and the ["left division operator" (`\`)](https://docs.julialang.org/en/v1/base/math/#Base.:\\-Tuple{Any,Any}) using the following function and `@time` (_not_ `@btime`).  Repeat two more times.  
+
+```julia
+# Create problem data
+N = 100
+A = rand(N,N)
+x = rand(N)
+y = A*x
+using LinearAlgebra
+
+function solve_Ax_via_LU_factorization(A::Matrix, x::Vector)
+   F = lu(A)   # [See manulal](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/index.html#LinearAlgebra.lu)
+   x = F \ y
+end
+
+@time x1 = solve_Ax_via_LU_factorization(A,x)
+@time x2 = solve_Ax_via_LU_factorization(A,x)
+@time x3 = solve_Ax_via_LU_factorization(A,x);
+```
+
+i.  Is there any noticeable difference in your three results?  If so, what do you think explains the difference?  
+
+INSERT RESPONCE
+
+j.  Now, try try benchmarking the same code using the `@benchmark` macro.  (This will take several seconds.)
+
+```julia
+@benchmark solve_Ax_via_LU_factorization($A,$x)
+```
+
+k.  Is there a significant different between the minimum and maximum time required?  If so, what do you think is the biggest effect in explaining the difference?  Which output do you think is most relevant for your typical scientific applications?  
+
+INSERT RESPONSE
+
+l.  How does your result compare to what you estimated analytically in part g?
+
+INSERT RESPONSE
+
+## Scaling with Problem Size
+
+m.  Next, lets consider several relatively small problem sizes (e.g., no larger than a few hundred) and benchmark `solve_Ax_via_LU_factorization` to see how the performance scales as we increase $N$.  Plot the results on a log-log scale.
+
+```julia
+N_list = 2 .^(1:9)
+time_list = zeros(length(N_list))
+for i in 1:length(N_list)
+  N = N_list[i]
+  A = rand(N,N)
+  x = rand(N)
+  y = A*x
+  time_list[i] = @belapsed solve_Ax_via_LU_factorization(A,x)
+end
+time_list
+```
+
+```julia
+using Plots
+```
+
+```julia
+time_for_one_fma = @belapsed 17.0*π+4.0
+model_list = time_for_one_fma * 2//3 .* N_list.^3 
+plot(log10.(N_list),log10.(model_list), xlabel="log N", ylabel = "log Time (s)", label="Model", legend=:bottomright) 
+scatter!(log10.(N_list),log10.(time_list), label="Actual")
+```
+
+n. How does the actual performance compare the analytic model?  What is your guess for the cause of any deviations?
+
+INSERT RESPONCE
+
+
+o. For real life problems, what other considerations are likely to limit performance?
+
+INSERT RESPONCE
+
+
+p. How could one practically solve even larger linear systems?
+
+INSERT RESPONCE
+
+
+[^1]: Acknowledgment:  The questions in this subsection are based on Oliveira & Stewarts Writing Scientific Software, Chapter 5, Problem #6.
+
+```julia
+```

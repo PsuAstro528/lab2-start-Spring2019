@@ -1,0 +1,26 @@
+language: julia
+os:
+  - linux
+julia:
+  - 1.0
+
+# Keep the following only for the labN-dev version of the repository
+#branches:
+#  only:
+#    - solution
+
+# Replace with the following once make labN-start version of the respository
+branches:
+  except:
+  - original
+
+
+script:
+#  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+#  - julia -e 'Pkg.clone(pwd())'
+#  - julia -e 'Pkg.test("PkgName",coverage=true)'
+#  - julia test/install_required_pacakges.jl
+  - cp test/Project.toml .
+  - julia -e 'using Pkg; Pkg.activate("."); Pkg.instantiate();'
+  - julia test/runtests.jl
+
