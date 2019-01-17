@@ -7,13 +7,13 @@
 Julia provides several tools for measuring code performance. Perhaps the simplest way is using the [`@time`](https://docs.julialang.org/en/v1.0/base/base/#Base.@time) or [`@elapsed`](https://docs.julialang.org/en/v1.0/base/base/#Base.@elapsed) macros, such as
 
 ```julia
-@time randn(1000);
+@time rand(1000);
 ```
 
 The `@time` macro prints the time, but returns the value of the following expression. The `@elapsed` macro discards the following expressions return value and returns the elapsed time evaluating the expression. There are even more sophisticated macros in the [BenchmarkTools.jl](https://github.com/JuliaCI/BenchmarkTools.jl) package which provides `@btime` and `@belapsed` that provide outputs similar to `@time` and `@elapsed`, but take longer than @time, since it runs the code multiple times in an attempt to give more accurate results.  It also provides a `@benchmkark` macro that provides more detailed information.  
 
 a) For several common mathematical functions, calculate how many million evaluations your computer performs per second.  
-Try a few arithmatic operations, a couple of trig functions, and a logarithm. For example,  
+Try a few arithmatic operations, a couple of trig functions, and a logarithm. For example,
 
 ```julia
 # First, let's install all the packages that will be used for this lab
@@ -28,10 +28,10 @@ using BenchmarkTools
 
 ```julia
 function my_benchmarks(N::Integer)
-   x = randn(N)
-   y = randn(N)
-   println("rand:  ", N/(@belapsed rand($N)), " M evals/sec");
-   println(".+  :  ", N/(@belapsed $x.+$y), " M evals/sec");
+   x = rand(N)
+   y = rand(N)
+   println("rand:  ", N/(@belapsed rand($N)), " evals/sec");
+   println(".+  :  ", N/(@belapsed $x.+$y), " evals/sec");
    # INSERT CODE
 end
 
@@ -85,7 +85,7 @@ g. Following your work above, estimate how long it would take to solve a linear 
 
 INSERT RESPONCE
 
-h.  Benchmark how long it actually takes to solve a linear system with $N=100$ via [LU factorization](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/index.html#LinearAlgebra.lu) and the ["left division operator" (`\`)](https://docs.julialang.org/en/v1/base/math/#Base.:\\-Tuple{Any,Any}) using the following function and `@time` (_not_ `@btime`).  Repeat two more times.  
+h.  Benchmark how long it actually takes to solve a linear system with $N=100$ via [LU factorization](https://docs.julialang.org/en/v1/stdlib/LinearAlgebra/index.html#LinearAlgebra.lu) and the ["left division operator" (`\`)](https://docs.julialang.org/en/v1/base/math/#Base.:\\-Tuple{Any,Any}) using the following function and `@time` (_not_ `@btime`).  Repeat two more times.
 
 ```julia
 # Create problem data
